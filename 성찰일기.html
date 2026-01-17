@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>성찰 일기 - Daily Journal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .date-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .date-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+            line-height: 1.6;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .char-count {
+            text-align: right;
+            color: #718096;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+
+        .journal-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .journal-item {
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .journal-item:hover {
+            background: #edf2f7;
+            transform: translateX(5px);
+        }
+
+        .journal-date {
+            font-size: 14px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .journal-content {
+            color: #2d3748;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .journal-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-edit {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #3182ce;
+        }
+
+        .btn-delete {
+            background: #fc8181;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #f56565;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0aec0;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+        }
+
+        .stats {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 5px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📖 성찰 일기</h1>
+            <p>매일의 배움과 성찰을 기록하세요</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalEntries">0</div>
+                <div class="stat-label">전체 일기</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="thisMonth">0</div>
+                <div class="stat-label">이번 달</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalWords">0</div>
+                <div class="stat-label">총 글자 수</div>
+            </div>
+        </div>
+
+        <div class="main-grid" style="margin-top: 20px;">
+            <div class="card">
+                <h2 class="card-title">✍️ 오늘의 성찰</h2>
+                <input type="date" id="journalDate" class="date-input">
+                <textarea id="journalText" placeholder="오늘 배운 것, 느낀 것, 생각한 것을 자유롭게 적어보세요...
+
+예시:
+- 오늘 배운 새로운 개념이나 지식
+- 연구/학습 과정에서의 어려움과 극복 방법
+- 앞으로 시도해보고 싶은 것들
+- 감사한 일이나 긍정적인 경험"></textarea>
+                <div class="char-count">
+                    <span id="charCount">0</span>자
+                </div>
+                <button class="btn btn-primary" onclick="saveJournal()">💾 저장하기</button>
+                <button class="btn btn-secondary" onclick="exportJournals()">📥 전체 내보내기 (텍스트)</button>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">📚 지난 기록</h2>
+                <input type="text" id="searchBox" class="search-box" placeholder="🔍 검색어를 입력하세요..." oninput="searchJournals()">
+                <div class="journal-list" id="journalList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let journals = [];
+        let editingId = null;
+
+        // 오늘 날짜로 초기화
+        document.getElementById('journalDate').valueAsDate = new Date();
+
+        // localStorage에서 데이터 불러오기
+        function loadJournals() {
+            const saved = localStorage.getItem('dailyJournals');
+            if (saved) {
+                try {
+                    journals = JSON.parse(saved);
+                    journals.sort((a, b) => new Date(b.date) - new Date(a.date));
+                } catch (e) {
+                    console.error('데이터 불러오기 실패:', e);
+                    journals = [];
+                }
+            }
+        }
+
+        // localStorage에 저장
+        function saveToStorage() {
+            localStorage.setItem('dailyJournals', JSON.stringify(journals));
+        }
+
+        // 일기 저장
+        function saveJournal() {
+            const date = document.getElementById('journalDate').value;
+            const text = document.getElementById('journalText').value.trim();
+
+            if (!date) {
+                alert('날짜를 선택해주세요!');
+                return;
+            }
+
+            if (!text) {
+                alert('내용을 입력해주세요!');
+                return;
+            }
+
+            if (editingId !== null) {
+                // 수정 모드
+                const journal = journals.find(j => j.id === editingId);
+                if (journal) {
+                    journal.date = date;
+                    journal.text = text;
+                    journal.updatedAt = new Date().toISOString();
+                }
+                editingId = null;
+            } else {
+                // 새로 작성
+                const journal = {
+                    id: Date.now(),
+                    date: date,
+                    text: text,
+                    createdAt: new Date().toISOString()
+                };
+                journals.unshift(journal);
+            }
+
+            saveToStorage();
+            document.getElementById('journalText').value = '';
+            document.getElementById('journalDate').valueAsDate = new Date();
+            renderJournals();
+            updateStats();
+            alert('저장되었습니다! ✅');
+        }
+
+        // 일기 목록 렌더링
+        function renderJournals(filteredJournals = null) {
+            const list = document.getElementById('journalList');
+            const displayJournals = filteredJournals || journals;
+
+            if (displayJournals.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <p>아직 작성된 일기가 없습니다.<br>첫 번째 성찰을 기록해보세요!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = displayJournals.map(journal => `
+                <div class="journal-item">
+                    <div class="journal-date">📅 ${formatDate(journal.date)}</div>
+                    <div class="journal-content">${escapeHtml(journal.text)}</div>
+                    <div class="journal-actions">
+                        <button class="btn-small btn-edit" onclick="editJournal(${journal.id})">수정</button>
+                        <button class="btn-small btn-delete" onclick="deleteJournal(${journal.id})">삭제</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 일기 수정
+        function editJournal(id) {
+            const journal = journals.find(j => j.id === id);
+            if (journal) {
+                document.getElementById('journalDate').value = journal.date;
+                document.getElementById('journalText').value = journal.text;
+                editingId = id;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // 일기 삭제
+        function deleteJournal(id) {
+            if (confirm('정말 삭제하시겠습니까?')) {
+                journals = journals.filter(j => j.id !== id);
+                saveToStorage();
+                renderJournals();
+                updateStats();
+            }
+        }
+
+        // 검색 기능
+        function searchJournals() {
+            const keyword = document.getElementById('searchBox').value.toLowerCase();
+            if (!keyword) {
+                renderJournals();
+                return;
+            }
+
+            const filtered = journals.filter(j => 
+                j.text.toLowerCase().includes(keyword) || 
+                j.date.includes(keyword)
+            );
+            renderJournals(filtered);
+        }
+
+        // 통계 업데이트
+        function updateStats() {
+            const total = journals.length;
+            const thisMonth = journals.filter(j => {
+                const journalDate = new Date(j.date);
+                const now = new Date();
+                return journalDate.getMonth() === now.getMonth() && 
+                       journalDate.getFullYear() === now.getFullYear();
+            }).length;
+            const totalChars = journals.reduce((sum, j) => sum + j.text.length, 0);
+
+            document.getElementById('totalEntries').textContent = total;
+            document.getElementById('thisMonth').textContent = thisMonth;
+            document.getElementById('totalWords').textContent = totalChars.toLocaleString();
+        }
+
+        // 날짜 포맷
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+            const weekday = weekdays[date.getDay()];
+            return `${year}년 ${month}월 ${day}일 (${weekday})`;
+        }
+
+        // HTML 이스케이프
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 글자 수 카운터
+        document.getElementById('journalText').addEventListener('input', function() {
+            const count = this.value.length;
+            document.getElementById('charCount').textContent = count.toLocaleString();
+        });
+
+        // 전체 내보내기
+        function exportJournals() {
+            if (journals.length === 0) {
+                alert('내보낼 일기가 없습니다!');
+                return;
+            }
+
+            let content = '='.repeat(50) + '\n';
+            content += '성찰 일기 전체 기록\n';
+            content += '='.repeat(50) + '\n\n';
+
+            journals.forEach(journal => {
+                content += `📅 ${formatDate(journal.date)}\n`;
+                content += '-'.repeat(50) + '\n';
+                content += journal.text + '\n\n';
+                content += '='.repeat(50) + '\n\n';
+            });
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `성찰일기_${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 초기화
+        loadJournals();
+        renderJournals();
+        updateStats();
+    </script>
+</body>
+</html>
